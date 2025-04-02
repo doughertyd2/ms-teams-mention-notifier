@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Teams Notification Email Sender</title>
+		<style>
+			body {
+				font-family: Arial, sans-serif;
+				width: 380px;
+				padding: 15px;
+			}
+			.container {
+				display: flex;
+				flex-direction: column;
+				gap: 10px;
+			}
+			.form-group {
+				display: flex;
+				flex-direction: column;
+				gap: 5px;
+			}
+			.section {
+				border: 1px solid #ddd;
+				border-radius: 4px;
+				padding: 10px;
+				margin-bottom: 10px;
+			}
+			.section-title {
+				font-weight: bold;
+				margin-bottom: 10px;
+				color: #2196f3;
+			}
+			label {
+				font-weight: bold;
+			}
+			input[type="text"],
+			input[type="email"],
+			input[type="password"],
+			input[type="number"] {
+				padding: 8px;
+				border: 1px solid #ccc;
+				border-radius: 4px;
+			}
+			.toggle {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				margin-bottom: 10px;
+			}
+			.switch {
+				position: relative;
+				display: inline-block;
+				width: 50px;
+				height: 24px;
+			}
+			.switch input {
+				opacity: 0;
+				width: 0;
+				height: 0;
+			}
+			.slider {
+				position: absolute;
+				cursor: pointer;
+				top: 0;
+				left: 0;
+				right: 0;
+				bottom: 0;
+				background-color: #ccc;
+				transition: 0.4s;
+				border-radius: 24px;
+			}
+			.slider:before {
+				position: absolute;
+				content: "";
+				height: 16px;
+				width: 16px;
+				left: 4px;
+				bottom: 4px;
+				background-color: white;
+				transition: 0.4s;
+				border-radius: 50%;
+			}
+			input:checked + .slider {
+				background-color: #2196f3;
+			}
+			input:checked + .slider:before {
+				transform: translateX(26px);
+			}
+			button {
+				background-color: #4caf50;
+				color: white;
+				padding: 10px;
+				border: none;
+				border-radius: 4px;
+				cursor: pointer;
+				font-weight: bold;
+			}
+			button:hover {
+				background-color: #45a049;
+			}
+			.status {
+				margin-top: 10px;
+				padding: 10px;
+				border-radius: 4px;
+				display: none;
+			}
+			.success {
+				background-color: #d4edda;
+				color: #155724;
+				display: block;
+			}
+			.error {
+				background-color: #f8d7da;
+				color: #721c24;
+				display: block;
+			}
+			.logs {
+				margin-top: 15px;
+				border-top: 1px solid #ddd;
+				padding-top: 10px;
+			}
+			.log-entry {
+				font-size: 12px;
+				margin-bottom: 5px;
+				color: #666;
+			}
+			.recipient-list {
+				margin-top: 5px;
+			}
+			.recipient-item {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				padding: 5px;
+				background-color: #f5f5f5;
+				border-radius: 4px;
+				margin-bottom: 5px;
+			}
+			.remove-btn {
+				background-color: #f44336;
+				color: white;
+				border: none;
+				border-radius: 50%;
+				width: 20px;
+				height: 20px;
+				font-size: 12px;
+				cursor: pointer;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+			}
+			.add-recipient-btn {
+				background-color: #2196f3;
+				margin-top: 5px;
+				font-size: 12px;
+				padding: 5px 10px;
+			}
+			.tabs {
+				display: flex;
+				margin-bottom: 10px;
+			}
+			.tab {
+				padding: 8px 15px;
+				cursor: pointer;
+				border: 1px solid #ddd;
+				background-color: #f5f5f5;
+				flex-grow: 1;
+				text-align: center;
+			}
+			.tab.active {
+				background-color: #2196f3;
+				color: white;
+				border-color: #2196f3;
+			}
+			.tab-content {
+				display: none;
+			}
+			.tab-content.active {
+				display: block;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<h2>Teams Notification Settings</h2>
+
+			<div class="toggle">
+				<span>Enable Notifications</span>
+				<label class="switch">
+					<input type="checkbox" id="enableToggle" checked />
+					<span class="slider"></span>
+				</label>
+			</div>
+
+			<div class="tabs">
+				<div class="tab active" data-tab="general">General</div>
+				<div class="tab" data-tab="emailjs">EmailJS Settings</div>
+				<div class="tab" data-tab="logs">Logs</div>
+			</div>
+
+			<div id="generalTab" class="tab-content active">
+				<div class="section">
+					<div class="section-title">Email Configuration</div>
+
+					<div class="form-group">
+						<label for="senderEmail">Sender Email:</label>
+						<input type="email" id="senderEmail" placeholder="Enter sender email address" />
+					</div>
+
+					<div class="form-group">
+						<label for="newRecipient">Recipients:</label>
+						<div class="recipient-input-container">
+							<input type="email" id="newRecipient" placeholder="Enter recipient email address" />
+							<button class="add-recipient-btn" id="addRecipientBtn">Add</button>
+						</div>
+						<div id="recipientsList" class="recipient-list">
+							<!-- Recipients will be added here dynamically -->
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label for="searchTerm">Notification Keyword:</label>
+						<input type="text" id="searchTerm" placeholder="e.g., your name" value="devin" />
+					</div>
+				</div>
+			</div>
+
+			<div id="emailjsTab" class="tab-content">
+				<div class="section">
+					<div class="section-title">EmailJS Settings</div>
+
+					<div class="form-group">
+						<label for="emailjsService">Service ID:</label>
+						<input type="text" id="emailjsService" placeholder="Enter your EmailJS service ID" />
+					</div>
+
+					<div class="form-group">
+						<label for="emailjsTemplate">Template ID:</label>
+						<input type="text" id="emailjsTemplate" placeholder="Enter your EmailJS template ID" />
+					</div>
+
+					<div class="form-group">
+						<label for="emailjsUser">User ID:</label>
+						<input type="text" id="emailjsUser" placeholder="Enter your EmailJS user ID" />
+					</div>
+				</div>
+			</div>
+
+			<div id="logsTab" class="tab-content">
+				<div class="logs">
+					<h3>Recent Notifications</h3>
+					<div id="logEntries"></div>
+				</div>
+			</div>
+
+			<button id="saveButton">Save Settings</button>
+
+			<div id="status" class="status"></div>
+		</div>
+
+		<script src="js/popup.js"></script>
+		<script>
+			// Basic tab switching logic
+			const tabs = document.querySelectorAll(".tab");
+			const tabContents = document.querySelectorAll(".tab-content");
+
+			tabs.forEach((tab) => {
+				tab.addEventListener("click", () => {
+					tabs.forEach((t) => t.classList.remove("active"));
+					tabContents.forEach((content) => content.classList.remove("active"));
+
+					tab.classList.add("active");
+					document.getElementById(tab.getAttribute("data-tab") + "Tab").classList.add("active");
+				});
+			});
+		</script>
+	</body>
+</html>
